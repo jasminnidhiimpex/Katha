@@ -47,6 +47,8 @@ export default function AdminSignup() {
     }
   };
 
+  
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-yellow-100 via-pink-100 to-purple-100 p-4">
       <div className="w-full max-w-md bg-white shadow-xl rounded-2xl p-8">
