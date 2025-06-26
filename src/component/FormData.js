@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { baseUrl } from "../utils/url";
 
 export default function FormData() {
   const [memberCount, setMemberCount] = useState(0);
@@ -93,7 +94,7 @@ export default function FormData() {
     };
 
     try {
-      const response = await fetch("http://localhost:5000/api/form-submit", {
+      const response = await fetch(`${baseUrl}/users/add-yajman-yadi`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
