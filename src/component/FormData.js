@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { baseUrl } from "../utils/url";
+import { Link } from "react-router-dom";
 
 export default function FormData() {
   const [memberCount, setMemberCount] = useState(0);
@@ -103,13 +104,25 @@ export default function FormData() {
       const data = await response.json();
 
       if (response.ok) {
-        alert("Form submitted successfully!");
+         Swal.fire({
+                icon: "success",
+                title: "Updated!",
+                text: "Data Submitted Successfully",
+
+              });
       } else {
-        alert("Error: " + data.message);
+        Swal.fire({
+          icon: "Error",
+          title: "Data Submission Failed",
+          text: data.message,
+        });
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
-      alert("An error occurred. Please try again.");
+      Swal.fire(
+        "Error",
+        "An error occurred while submitting the form",
+        "error"
+      );
     }
   };
 
@@ -404,13 +417,19 @@ export default function FormData() {
             </div>
           </div>
 
-          <div className="text-center mt-6">
+          <div className="text-center mt-6 flex-col flex gap-2 justify-center w-full">
             <button
               type="submit"
-              className="bg-yellow-700 text-white px-6 py-2 rounded hover:bg-yellow-800 transition"
+              className="bg-yellow-700 text-white px-6 py-2 w-full rounded hover:bg-yellow-800 transition"
             >
               Submit
             </button>
+            <Link to='/adminformData'>
+            <button
+              className="bg-yellow-700 text-white px-6 py-2 rounded w-full hover:bg-yellow-800 transition"
+            >
+              Form Data
+            </button></Link>
           </div>
         </form>
       </div>
