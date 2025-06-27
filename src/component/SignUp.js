@@ -1,11 +1,12 @@
 import React, { useState } from "react";
+import { baseUrl } from "../utils/url";
 
 export default function AdminSignup() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     confirmPassword: "",
-    role: "admin",
+    // role: "admin",
   });
 
   const [error, setError] = useState("");
@@ -29,7 +30,7 @@ export default function AdminSignup() {
     }
 
     try {
-      const res = await fetch("https://your-backend-url.com/api/signup", {
+      const res = await fetch(`${baseUrl}/users/admin-singup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
