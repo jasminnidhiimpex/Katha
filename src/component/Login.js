@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { baseUrl } from '../utils/url';
 import { IoEye } from "react-icons/io5";
 import { IoMdEyeOff } from "react-icons/io";
+import Swal from 'sweetalert2';
 
 export const Login = () => {
   const navigate = useNavigate();
