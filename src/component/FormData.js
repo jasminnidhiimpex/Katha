@@ -105,12 +105,22 @@ export default function FormData() {
       const data = await response.json();
 
       if (response.ok) {
-         Swal.fire({
-                icon: "success",
-                title: "Updated!",
-                text: "Data Submitted Successfully",
-
-              });
+        Swal.fire({
+          icon: "success",
+          title: "Updated!",
+          text: "Data Submitted Successfully",
+        });
+        setMemberCount(0);
+        setMembers([]);
+        setPaymentDate(new Date().toISOString().slice(0, 10));
+        setDepartment("");
+        setTotalAmount("");
+        setPerMemberAmount("");
+        setManualTotalAmount("");
+        setSlipNo("");
+        setAddress("");
+        setPaymentStatus("");
+        e.target.reset();
       } else {
         Swal.fire({
           icon: "Error",
@@ -425,12 +435,11 @@ export default function FormData() {
             >
               Submit
             </button>
-            <Link to='/adminformData'>
-            <button
-              className="bg-yellow-700 text-white px-6 py-2 rounded w-full hover:bg-yellow-800 transition"
-            >
-              Form Data
-            </button></Link>
+            <Link to="/adminformData">
+              <button className="bg-yellow-700 text-white px-6 py-2 rounded w-full hover:bg-yellow-800 transition">
+                Form Data
+              </button>
+            </Link>
           </div>
         </form>
       </div>
