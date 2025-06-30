@@ -20,6 +20,13 @@ export default function AdminFormData() {
   const [editRowData, setEditRowData] = useState(null);
   const [showEditForm, setShowEditForm] = useState(false);
 
+  const [showForgotModal, setShowForgotModal] = useState(false);
+const [forgotEmail, setForgotEmail] = useState("");
+const [forgotPassword, setForgotPassword] = useState("");
+const [confirmPassword, setConfirmPassword] = useState("");
+
+
+
   const fetchData = async () => {
     try {
       const res = await fetch(`${baseUrl}/users/get-yajman-yadi`);
@@ -67,6 +74,29 @@ export default function AdminFormData() {
             }
           },
         },
+         {
+  headerName: "Actions",
+  field: "actions",
+  width: 100,
+  pinned: "right",
+  cellRenderer: (params) => {
+    const data = params.data;
+
+    // ✅ Avoid rendering Delete for pinned total row
+    if (params.node.rowPinned) return null;
+
+    return (
+      <button
+        onClick={() => handleDelete(data)}
+        className="bg-red-500 text-white px-2 py-1 rounded text-sm hover:bg-red-700"
+      >
+        Delete
+      </button>
+    );
+  },
+},
+
+
         ...fields.map((key) => ({
           headerName: key.replace(/_/g, " ").toUpperCase(),
           field: key,
@@ -98,6 +128,51 @@ export default function AdminFormData() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  const handleDelete = async (row) => {
+  const confirm = await Swal.fire({
+    title: "Are you sure?",
+    text: "This will mark the entry as deleted.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes, delete it!",
+  });
+
+  if (!confirm.isConfirmed) return;
+
+  const payload = {
+    type: row.isParent ? "main_member" : "member",
+    is_deleted: 1,
+    id: row.isParent ? row.id : row.id,
+    yajman_id: row.isParent ? null : row.yajman_id,
+  };
+
+  try {
+    const res = await fetch(`${baseUrl}/users/delete-yajman-yadi`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const json = await res.json();
+
+    if (json.message.includes("Deleted Successfully")){
+  Swal.fire("Deleted!", json.message, "success");
+  fetchData();
+} else {
+  Swal.fire("Error", json.message || "Delete failed", "error");
+}
+
+  } catch (err) {
+    console.error("Delete error:", err);
+    Swal.fire("Error", "Something went wrong", "error");
+  }
+};
+
+
+
 
   const toggleExpand = (parentId) => {
     setRowData((prevData) => {
@@ -167,47 +242,110 @@ export default function AdminFormData() {
 
 
 
-  const handleRowDoubleClick = (event) => {
-    const fullRow = event.data;
-    const members = [];
+  const handleRowDoubleClick = async (event) => {
+  const fullRow = event.data;
 
-    if (!fullRow.isParent) {
-      members.push(fullRow);
+  if (!fullRow.isParent) return;
+
+  try {
+    const res = await fetch(`${baseUrl}/users/get-one-yajman-yadi/${fullRow.id}`);
+    const json = await res.json();
+
+    const parent = json.data[0];
+
+    if (parent) {
+      const members = [];
+
+      // Main member (from main_member field)
+      members.push({
+        member_id: parent.member_id,
+        fullName: parent.name,
+        age: parent.age,
+        mobile: parent.mobile,
+        gender: parent.gender,
+        aadhaar: parent.aadhaar,
+      });
+
+      // Children
+      if (Array.isArray(parent.children)) {
+        parent.children.forEach((child) => {
+          members.push({
+            id: child.id,
+            fullName: child.name,
+            age: child.age,
+            mobile: child.mobile,
+            gender: child.gender,
+            aadhaar: child.aadhaar,
+          });
+        });
+      }
+
+      const payload = {
+        memberCount: members.length,
+        members,
+        department: parent.department,
+        address: parent.address,
+        city: parent.city,
+        village: parent.village,
+        refName: parent.ref_name,
+        refMobile: parent.ref_mobile,
+        refCity: parent.ref_city,
+        totalAmount: parent.total_amount,
+        paymentStatus: parent.payment_status,
+        paymentDate: parent.payment_date,
+        slipNo: parent.slip_no,
+        yajman_id: parent.id,
+        id: parent.id,
+      };
+
+      setEditRowData(payload);
+      setShowEditForm(true);
     } else {
-      const related = rowData.filter((r) => r.parentId === fullRow.id || r.id === fullRow.id);
-      related.forEach((m) =>
-        members.push({
-          id: m.id,
-          fullName: m.full_name || m.name,
-          age: m.age,
-          mobile: m.mobile,
-          gender: m.gender,
-          aadhaar: m.aadhaar,
-        })
-      );
+      Swal.fire("Error", "No data found", "error");
     }
+  } catch (err) {
+    console.error("Fetch error:", err);
+    Swal.fire("Error", "Something went wrong", "error");
+  }
+};
 
-    const payload = {
-      memberCount: members.length,
-      members,
-      department: fullRow.department,
-      address: fullRow.address,
-      city: fullRow.city,
-      village: fullRow.village,
-      refName: fullRow.ref_name,
-      refMobile: fullRow.ref_mobile,
-      refCity: fullRow.ref_city,
-      totalAmount: fullRow.total_amount,
-      paymentStatus: fullRow.payment_status,
-      paymentDate: fullRow.payment_date,
-      slipNo: fullRow.slip_no,
-      yajman_id: fullRow.yajman_id,
-      id: fullRow.id,
-    };
+const handleForgotPasswordSubmit = async () => {
+  if (!forgotEmail || !forgotPassword || !confirmPassword) {
+    Swal.fire("Validation Error", "All fields are required.", "warning");
+    return;
+  }
 
-    setEditRowData(payload);
-    setShowEditForm(true);
-  };
+  if (forgotPassword !== confirmPassword) {
+    Swal.fire("Mismatch", "Passwords do not match.", "error");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${baseUrl}/users/admin-forgot-password`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: forgotEmail, password_hash: forgotPassword , confirmPassword: confirmPassword }),
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      Swal.fire("Success", data.message || "Password updated", "success");
+      setShowForgotModal(false);
+      setForgotEmail("");
+      setForgotPassword("");
+      setConfirmPassword("");
+    } else {
+      Swal.fire("Error", data.message || "Failed to reset password", "error");
+    }
+  } catch (error) {
+    console.error("Forgot password error:", error);
+    Swal.fire("Error", "Server error occurred", "error");
+  }
+};
+
+
+
+
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
@@ -219,7 +357,10 @@ export default function AdminFormData() {
               <div className="bg-yellow-600 text-white px-4 py-2 rounded shadow">Yajman Group: {totals.total_yajman_group}</div>
               <div className="bg-yellow-600 text-white px-4 py-2 rounded shadow">Total Members: {totals.total_members}</div>
               <div className="bg-yellow-600 text-white px-4 py-2 rounded shadow">Pending Amount: ₹{totals.total_pending_amount}</div>
+              <button className="bg-blue-600  text-white px-4 py-2 rounded shadow"onClick={() => setShowForgotModal(true)}> Forgot Password </button>
               <div className="bg-yellow-600 text-white px-4 py-2 rounded shadow">Received Amount: ₹{totals.total_received_amount}</div>
+
+
             </>
           )}
           <Link to="/formData">
@@ -254,6 +395,60 @@ export default function AdminFormData() {
           onSubmit={handleFormUpdate}
         />
       )}
+      {showForgotModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-xl">
+      <h2 className="text-xl font-bold mb-4 text-center">Reset Admin Password</h2>
+
+      <div className="mb-3">
+        <label className="block mb-1">Email</label>
+        <input
+          type="email"
+          className="w-full border border-gray-300 p-2 rounded"
+          value={forgotEmail}
+          onChange={(e) => setForgotEmail(e.target.value)}
+        />
+      </div>
+
+      <div className="mb-3">
+        <label className="block mb-1">New Password</label>
+        <input
+          type="password"
+          className="w-full border border-gray-300 p-2 rounded"
+          value={forgotPassword}
+          onChange={(e) => setForgotPassword(e.target.value)}
+        />
+      </div>
+
+      <div className="mb-4">
+        <label className="block mb-1">Confirm Password</label>
+        <input
+          type="password"
+          className="w-full border border-gray-300 p-2 rounded"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+        />
+      </div>
+
+      <div className="flex justify-end gap-2">
+        <button
+          className="bg-gray-400 text-white px-4 py-2 rounded"
+          onClick={() => setShowForgotModal(false)}
+        >
+          Cancel
+        </button>
+        <button
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          onClick={handleForgotPasswordSubmit}
+        >
+          Submit
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
     </div>
   );
 }
