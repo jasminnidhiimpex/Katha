@@ -359,8 +359,10 @@ setLoading(true);
 
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <div className="flex justify-between flex-wrap gap-4 items-start mb-6">
+    <div className="p-4 sm:p-6 bg-gray-50 min-h-screen w-full">
+
+      <div className="flex flex-col lg:flex-row justify-between gap-4 items-start mb-6">
+
         <h1 className="text-3xl font-bold text-yellow-700">Yajman Yadi</h1>
         <div className="flex flex-wrap gap-3">
           {totals && (
@@ -389,14 +391,25 @@ setLoading(true);
 
       <div className="ag-theme-alpine border border-gray-200" style={{ height: "88vh", width: "100%" }}>
         <AgGridReact
-          onGridReady={(params) => setGridApi(params.api)}
-          onRowDoubleClicked={handleRowDoubleClick}
-          rowData={rowData.filter((row) => !row.hidden)}
-          columnDefs={columnDefs}
-          defaultColDef={defaultColDef}
-          pinnedBottomRowData={pinnedBottomRowData}
-          suppressRowClickSelection={true}
-        />
+  onGridReady={(params) => setGridApi(params.api)}
+  onRowDoubleClicked={handleRowDoubleClick}
+  rowData={rowData.filter((row) => !row.hidden)}
+  columnDefs={columnDefs}
+  defaultColDef={defaultColDef}
+  pinnedBottomRowData={pinnedBottomRowData}
+  suppressRowClickSelection={true}
+  onFilterChanged={() => {
+    if (!gridApi) return;
+    const visibleRows = [];
+    gridApi.forEachNodeAfterFilter((node) => {
+      if (node.data?.isParent && !node.data.hidden) {
+        visibleRows.push(node.data);
+      }
+    });
+    updatePinnedTotals(visibleRows);
+  }}
+/>
+
       </div>
 
       {showEditForm && (
