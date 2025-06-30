@@ -27,6 +27,8 @@ const [confirmPassword, setConfirmPassword] = useState("");
 
 const [loading, setLoading] = useState(false);
 
+const [showPassword, setShowPassword] = useState(false);
+
 
 
 
@@ -423,21 +425,32 @@ setLoading(true);
       <div className="mb-3">
         <label className="block mb-1">New Password</label>
         <input
-          type="password"
-          className="w-full border border-gray-300 p-2 rounded"
-          value={forgotPassword}
-          onChange={(e) => setForgotPassword(e.target.value)}
-        />
+  type={showPassword ? "text" : "password"}
+  className="w-full border border-gray-300 p-2 rounded"
+  value={forgotPassword}
+  onChange={(e) => setForgotPassword(e.target.value)}
+/>
+
       </div>
 
       <div className="mb-4">
         <label className="block mb-1">Confirm Password</label>
         <input
-          type="password"
-          className="w-full border border-gray-300 p-2 rounded"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-        />
+  type={showPassword ? "text" : "password"}
+  className="w-full border border-gray-300 p-2 rounded"
+  value={confirmPassword}
+  onChange={(e) => setConfirmPassword(e.target.value)}
+/>
+<div className="mb-4 text-right">
+  <button
+    type="button"
+    className="text-sm text-blue-600 hover:underline"
+    onClick={() => setShowPassword((prev) => !prev)}
+  >
+    {showPassword ? "Hide Password" : "Show Password"}
+  </button>
+</div>
+
       </div>
 
       <div className="flex justify-end gap-2">
@@ -454,6 +467,14 @@ setLoading(true);
           Submit
         </button>
       </div>
+    </div>
+  </div>
+)}
+
+{loading && (
+  <div className="fixed inset-0 bg-black bg-opacity-40 z-50 flex justify-center items-center">
+    <div className="text-white text-xl bg-yellow-600 px-6 py-3 rounded shadow-lg animate-pulse">
+      Processing...
     </div>
   </div>
 )}
