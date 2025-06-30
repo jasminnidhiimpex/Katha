@@ -202,23 +202,24 @@ const [showPassword, setShowPassword] = useState(false);
   };
 
   const updatePinnedTotals = (visibleParents) => {
-    const totalMembers = visibleParents.reduce((sum, r) => sum + (parseInt(r.member_count) || 0), 0);
-    const totalPending = visibleParents
-      .filter((r) => r.payment_status?.toLowerCase() === "pending")
-      .reduce((sum, r) => sum + (parseInt(r.total_amount) || 0), 0);
-    const totalReceived = visibleParents
-      .filter((r) => r.payment_status?.toLowerCase() === "received")
-      .reduce((sum, r) => sum + (parseInt(r.total_amount) || 0), 0);
+  const totalMembers = visibleParents.reduce((sum, r) => sum + (parseInt(r.member_count) || 0), 0);
+  const totalPending = visibleParents
+    .filter((r) => r.payment_status?.toLowerCase() === "pending")
+    .reduce((sum, r) => sum + (parseInt(r.total_amount) || 0), 0);
+  const totalReceived = visibleParents
+    .filter((r) => r.payment_status?.toLowerCase() === "received")
+    .reduce((sum, r) => sum + (parseInt(r.total_amount) || 0), 0);
 
-    setPinnedBottomRowData([
-      {
-        name: "Total",
-        member_count: totalMembers,
-        total_amount: totalPending + totalReceived,
-        payment_status: "",
-      },
-    ]);
-  };
+  setPinnedBottomRowData([
+    {
+      name: "Total",
+      member_count: totalMembers,
+      total_amount: totalPending + totalReceived,
+      payment_status: "",
+    },
+  ]);
+};
+
 
  const handleFormUpdate = async (updatedPayload) => {
   const cleanPayload = {};
@@ -400,15 +401,19 @@ setLoading(true);
   suppressRowClickSelection={true}
   onFilterChanged={() => {
     if (!gridApi) return;
-    const visibleRows = [];
+
+    const filteredParents = [];
+
     gridApi.forEachNodeAfterFilter((node) => {
       if (node.data?.isParent && !node.data.hidden) {
-        visibleRows.push(node.data);
+        filteredParents.push(node.data);
       }
     });
-    updatePinnedTotals(visibleRows);
+
+    updatePinnedTotals(filteredParents);
   }}
 />
+
 
       </div>
 
