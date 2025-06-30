@@ -139,17 +139,26 @@ export default function FormData({
         });
 
         // Reset form
-        setMemberCount(0);
-        setMembers([]);
-        setPaymentDate(new Date().toISOString().slice(0, 10));
-        setDepartment("");
-        setTotalAmount("");
-        setPerMemberAmount("");
-        setManualTotalAmount("");
-        setSlipNo("");
-        setAddress("");
-        setPaymentStatus("");
-        e.target.reset();
+        // Reset form values
+setMemberCount(0);
+setMembers([]);
+setDepartment("");
+setTotalAmount("");
+setPerMemberAmount("");
+setManualTotalAmount("");
+setSlipNo("");
+setAddress("");
+setPaymentStatus("");
+setPaymentDate(new Date().toISOString().slice(0, 10));
+
+setCity("");
+setVillage("");
+setRefName("");
+setRefMobile("");
+setRefCity("");
+setPaymentRef("");
+
+
       } else {
         Swal.fire({
           icon: "Error",
@@ -484,10 +493,13 @@ export default function FormData({
             Payment Ref
           </label>
           <input
-            type="text"
-            name="paymentRef"
-            className="border rounded px-3 py-2 w-full"
-          />
+  type="text"
+  name="paymentRef"
+  value={paymentRef}
+  onChange={(e) => setPaymentRef(e.target.value)}
+  className="border rounded px-3 py-2 w-full"
+/>
+
         </div>
       </div>
 
