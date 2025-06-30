@@ -207,7 +207,7 @@ const [showPassword, setShowPassword] = useState(false);
     .filter((r) => r.payment_status?.toLowerCase() === "pending")
     .reduce((sum, r) => sum + (parseInt(r.total_amount) || 0), 0);
   const totalReceived = visibleParents
-    .filter((r) => r.payment_status?.toLowerCase() === "received")
+    .filter((r) => r.payment_status?.toLowerCase() === "paid")
     .reduce((sum, r) => sum + (parseInt(r.total_amount) || 0), 0);
 
   setPinnedBottomRowData([
