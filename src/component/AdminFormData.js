@@ -25,6 +25,9 @@ const [forgotEmail, setForgotEmail] = useState("");
 const [forgotPassword, setForgotPassword] = useState("");
 const [confirmPassword, setConfirmPassword] = useState("");
 
+const [loading, setLoading] = useState(false);
+
+
 
 
   const fetchData = async () => {
@@ -59,6 +62,8 @@ const [confirmPassword, setConfirmPassword] = useState("");
           headerName: "",
           field: "expand",
           width: 30,
+  pinned: "left",
+
           suppressMenu: true,
           suppressSorting: true,
           cellRenderer: (params) => {
@@ -140,6 +145,8 @@ const [confirmPassword, setConfirmPassword] = useState("");
 
   if (!confirm.isConfirmed) return;
 
+  setLoading(true);
+
   const payload = {
     type: row.isParent ? "main_member" : "member",
     is_deleted: 1,
@@ -168,7 +175,9 @@ const [confirmPassword, setConfirmPassword] = useState("");
   } catch (err) {
     console.error("Delete error:", err);
     Swal.fire("Error", "Something went wrong", "error");
-  }
+  } finally {
+  setLoading(false);
+}
 };
 
 
@@ -209,36 +218,34 @@ const [confirmPassword, setConfirmPassword] = useState("");
     ]);
   };
 
- const handleFormUpdate = (updatedPayload) => {
-  // Clean out null/empty/blank fields from payload
+ const handleFormUpdate = async (updatedPayload) => {
   const cleanPayload = {};
   for (const key in updatedPayload) {
     const value = updatedPayload[key];
-    if (
-      value !== null &&
-      value !== undefined &&
-      !(typeof value === "string" && value.trim() === "")
-    ) {
+    if (value !== null && value !== undefined && !(typeof value === "string" && value.trim() === "")) {
       cleanPayload[key] = value;
     }
   }
 
-  fetch(`${baseUrl}/users/update-yajman-yadi`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(cleanPayload),
-  })
-    .then((res) => res.json())
-    .then(() => {
-      Swal.fire("Updated", "Data updated successfully", "success");
-      setShowEditForm(false);
-      fetchData();
-    })
-    .catch((err) => {
-      Swal.fire("Error", "Update failed", "error");
-      console.error(err);
+  setLoading(true);
+  try {
+    const res = await fetch(`${baseUrl}/users/update-yajman-yadi`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(cleanPayload),
     });
+    const result = await res.json();
+    Swal.fire("Updated", "Data updated successfully", "success");
+    setShowEditForm(false);
+    fetchData();
+  } catch (err) {
+    console.error(err);
+    Swal.fire("Error", "Update failed", "error");
+  } finally {
+    setLoading(false);
+  }
 };
+
 
 
 
@@ -319,7 +326,7 @@ const handleForgotPasswordSubmit = async () => {
     Swal.fire("Mismatch", "Passwords do not match.", "error");
     return;
   }
-
+setLoading(true);
   try {
     const res = await fetch(`${baseUrl}/users/admin-forgot-password`, {
       method: "PUT",
@@ -340,7 +347,9 @@ const handleForgotPasswordSubmit = async () => {
   } catch (error) {
     console.error("Forgot password error:", error);
     Swal.fire("Error", "Server error occurred", "error");
-  }
+  } finally {
+  setLoading(false);
+}
 };
 
 
@@ -357,7 +366,6 @@ const handleForgotPasswordSubmit = async () => {
               <div className="bg-yellow-600 text-white px-4 py-2 rounded shadow">Yajman Group: {totals.total_yajman_group}</div>
               <div className="bg-yellow-600 text-white px-4 py-2 rounded shadow">Total Members: {totals.total_members}</div>
               <div className="bg-yellow-600 text-white px-4 py-2 rounded shadow">Pending Amount: ₹{totals.total_pending_amount}</div>
-              <button className="bg-blue-600  text-white px-4 py-2 rounded shadow"onClick={() => setShowForgotModal(true)}> Forgot Password </button>
               <div className="bg-yellow-600 text-white px-4 py-2 rounded shadow">Received Amount: ₹{totals.total_received_amount}</div>
 
 
@@ -366,6 +374,8 @@ const handleForgotPasswordSubmit = async () => {
           <Link to="/formData">
             <button className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded shadow">Add Data</button>
           </Link>
+              <button className="bg-blue-600  text-white px-4 py-2 rounded shadow"onClick={() => setShowForgotModal(true)}> Forgot Password </button>
+
           <Link to="/signup">
             <button className="bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-2 rounded shadow">Sign Up</button>
           </Link>
