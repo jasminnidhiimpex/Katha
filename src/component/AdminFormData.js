@@ -11,7 +11,7 @@ import FormData from "./FormData";
 export default function AdminFormData() {
   const [rowData, setRowData] = useState([]);
   const [columnDefs, setColumnDefs] = useState([]);
-  const [defaultColDef] = useState({ sortable: true, filter: true, resizable: true, minWidth: 80 });
+  const [defaultColDef] = useState({ sortable: true, filter: true, resizable: true, minWidth: 120 });
   const [gridApi, setGridApi] = useState(null);
   const [pinnedBottomRowData, setPinnedBottomRowData] = useState([]);
   const [totals, setTotals] = useState(null);
