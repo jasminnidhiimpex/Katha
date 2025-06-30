@@ -63,7 +63,7 @@ const [showPassword, setShowPassword] = useState(false);
         {
           headerName: "",
           field: "expand",
-          width: 30,
+          width: 20,
   pinned: "left",
 
           suppressMenu: true,
@@ -84,7 +84,7 @@ const [showPassword, setShowPassword] = useState(false);
          {
   headerName: "Actions",
   field: "actions",
-  width: 100,
+  width: 80,
   pinned: "right",
   cellRenderer: (params) => {
     const data = params.data;
